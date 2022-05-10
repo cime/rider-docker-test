@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:
+  rider.dockerfast.httpapi.host:
+    image: ${DOCKER_REGISTRY-}riderdockerfasthttpapihost
+    build:
+      context: .
+      dockerfile: src/Rider.DockerFast.HttpApi.Host/Dockerfile
+    environment:
+      ConnectionStrings__Default: Server=mssql;Database=DockerFast;User Id=sa;Password=U%GWt%vTqNmw8KGk
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mssql
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:latest
+    environment:
+      ACCEPT_EULA: yes
+      SA_PASSWORD: U%GWt%vTqNmw8KGk
+      MSSQL_PID: Express
+    ports:
+      - "1433:1433"
+    command: /bin/sh -c "(/opt/mssql/bin/sqlservr &) && sleep 10s && /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'U%GWt%vTqNmw8KGk' -d master -Q 'CREATE DATABASE [DockerFast]' && sleep infinity"
